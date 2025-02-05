@@ -4,7 +4,7 @@ params = parameters();
 x0 = [0,0];
 tol = 10e-6;
 
-data = BFGS(x0, tol, params, @objectiveF, @gradientF);
+data = BFGS(x0, tol, @objectiveF, @gradientF);
 
 fprintf('Optimal solution: x1 = %.6f, x2 = %.6f\n', data(1,end), data(2,end));
 
@@ -15,7 +15,7 @@ y = linspace(0, 5, 401);
 % Create a meshgrid for x and y
 [X, Y] = meshgrid(x, y);
 
-Z = objectiveF_2(X, Y, params);
+Z = objectiveF_2(X, Y);
 
 figure
 hold on
@@ -42,14 +42,16 @@ hold off
 %%Objective
 
 %Objective function
-function F = objectiveF(x, params)
+function F = objectiveF(x)
+    params = parameters();
     dL1 = sqrt(x(1)^2 + (params.L0 - x(2))^2) - params.L0;
     dL2 = sqrt(x(1)^2 + (params.L0 + x(2))^2) - params.L0;
     F = 0.5 * params.k1 * dL1^2 + 0.5 * params.k2 * dL2^2 - params.P1 * x(1) - params.P2 * x(2);
 end
 
 % Gradient of the function
-function grad = gradientF(x, params)
+function grad = gradientF(x)
+    params = parameters();
     % Partial derivatives
     dF_dx1 = params.k1*x(1) - params.P1 + params.k2*x(1) - (params.L0*params.k1*x(1))/(x(1)^2 + (params.L0 - x(2))^2)^(1/2) - ...
         (params.L0*params.k2*x(1))/((params.L0 + x(2))^2 + x(1)^2)^(1/2);
@@ -72,7 +74,8 @@ function params = parameters()
 end
 
 % Objective function for contour plot
-function F = objectiveF_2(x, y, params)
+function F = objectiveF_2(x, y)
+    params = parameters();
     dL1 = sqrt(x.^2 + (params.L0 - y).^2) - params.L0;
     dL2 = sqrt(x.^2 + (params.L0 + y).^2) - params.L0;
     F = 0.5 * params.k1 * dL1.^2 + 0.5 * params.k2 * dL2.^2 - params.P1 * x - params.P2 * y;

@@ -1,4 +1,4 @@
-function x = BFGS(x0, tol, params, objectiveF, gradientF)
+function x = BFGS(x0, tol, objectiveF, gradientF)
     maxIter = 100;
     B_inv = eye(2);
     % Preallocate space for storing iterations
@@ -8,7 +8,7 @@ function x = BFGS(x0, tol, params, objectiveF, gradientF)
 
     for iter = 1:maxIter
         % Compute function gradient
-        grad = gradientF(x(:,iter), params);
+        grad = gradientF(x(:,iter));
 
         % Check convergence
         if norm(grad) < tol
@@ -21,14 +21,14 @@ function x = BFGS(x0, tol, params, objectiveF, gradientF)
         p = -B_inv * grad;
 
         % Line search
-        alpha = lineSearch(x(:,iter), p, params, objectiveF, gradientF);
+        alpha = lineSearch(x(:,iter), p, objectiveF, gradientF);
 
         % Update x
         x(:, iter+1) = x(:, iter) + alpha * p;
 
         % Compute step differences
         s = x(:, iter+1) - x(:, iter);
-        y = gradientF(x(:, iter+1), params) - grad;
+        y = gradientF(x(:, iter+1)) - grad;
 
         % BFGS Update
         rho = 1 / (y' * s);
